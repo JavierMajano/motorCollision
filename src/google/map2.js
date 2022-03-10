@@ -1,23 +1,41 @@
 
 import React, { Component } from 'react';
 import Map from '../components/map/map';
+import Select from 'react-select';
 const API_KEY = 'AIzaSyDz2R7uwwfoFu4KH6qgSofChVgONHPuplE';
+
 
 var map;
 let infowindow;
 var service;
 let geocoder;
+let circle;
+let marker;
 
+const options = [
+  { value:500 , label:500  },
+  { value: 1000, label: 1000 },
+  { value: 1500, label: 1500 }
+]
 class App extends Component {
 
     state = {
  
         lat: 40.75814,
         lng: -73.98626,
+        selectedOption : 500,
+        radius : 500,
   
       zoom: 15
     }
-  
+   handleChange = (selectedOption) => {
+     console.log(selectedOption.value)
+     this.setState({radius: selectedOption.value})
+        // this.setState({ selectedOption, }, () =>
+        //   console.log(`Option selected:`, this.state.selectedOption.label)
+
+    //    );
+      };
     componentDidMount() {
       this.renderMap();
     }
@@ -44,7 +62,7 @@ class App extends Component {
       });
   
       // Current Location Marker
-      var marker = new window.google.maps.Marker({
+       marker = new window.google.maps.Marker({
           position: location,
           map: map,
           title: "You're Here!"
@@ -61,8 +79,13 @@ class App extends Component {
     infowindow.open(map);
     map.addListener("click", (mapsMouseEvent)=>{
       // Close the current InfoWindow.
+      
       infowindow.close();
-      console.log(mapsMouseEvent.latLng.toJSON())
+     
+      console.log(mapsMouseEvent.latLng.toJSON().lat)
+      this.setState({lat : mapsMouseEvent.latLng.toJSON().lat, lng : mapsMouseEvent.latLng.toJSON().lng})
+
+      location= {lat: this.state.lat, lng: this.state.lng}
       // Create a new InfoWindow.
       infowindow = new window.google.maps.InfoWindow({
       position: mapsMouseEvent.latLng,
@@ -72,7 +95,36 @@ class App extends Component {
       JSON.stringify(mapsMouseEvent.latLng.toJSON(), null, 2)
     );
     infowindow.open(map);
-   geocodeLatLng(geocoder, map, infowindow,);
+    console.log(circle)
+    
+    if(circle !== undefined)
+    {
+      circle.setMap(null)
+      // marker.setMap(null);
+    }
+    if (marker && marker.setMap) {
+      marker.setMap(null);
+  }
+     marker = new window.google.maps.Marker({
+      position: location,
+      map: map,
+      draggable: true,
+    });
+    
+
+     circle = new window.google.maps.Circle({
+      strokeColor: '#FF0000',
+      strokeOpacity: 0.8,
+      strokeWeight: 2,
+      fillColor: '#FF0000',
+      fillOpacity: 0.35,
+      map: map,
+      radius : this.state.radius,
+      center: location
+    })
+
+    circle.bindTo('center', marker, 'position');
+  // geocodeLatLng(geocoder, map, infowindow,);
 
     })
 function geocodeLatLng(geocoder, map, infowindow){
@@ -103,8 +155,16 @@ function geocodeLatLng(geocoder, map, infowindow){
     }
   
     render() {
+      const { selectedOption } = this.state;
       return (
         <div className="App">
+          
+           <Select
+            value={selectedOption}
+            onChange={this.handleChange}
+            options={options}
+          />
+           <button className="btn btn-primary" onClick={this.currentBorough}>Enter Radius</button>
           <Map />
         </div>
       );
