@@ -7,7 +7,7 @@ function App() {
     <div className="App">
        
         <div>
-          <Motor />
+          {/* <Motor /> */}
           <MAP />
         </div>
         
