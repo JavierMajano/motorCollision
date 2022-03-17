@@ -87,7 +87,7 @@ class App extends Component {
         position: this.state.location,
     });
     infowindow.open(map);
-    map.addListener("click", (mapsMouseEvent)=>{
+    map.addListener("click", (mapsMouseEvent)=>{ // this evenlistenr is used for creating a circle radius after a click is made
       // Close the current InfoWindow.
       
       infowindow.close();
@@ -110,19 +110,19 @@ class App extends Component {
     if(circle !== undefined)
     {
       circle.setMap(null)
-      // marker.setMap(null);
+
     }
     if (marker && marker.setMap) {
       marker.setMap(null);
   }
-     marker = new window.google.maps.Marker({
+     marker = new window.google.maps.Marker({ // this marker is for cicle radius to move around
       position: location,
       map: map,
       draggable: true,
     });
     
 
-     circle = new window.google.maps.Circle({
+     circle = new window.google.maps.Circle({  // creating circle from click event
       strokeColor: '#FF0000',
       strokeOpacity: 0.8,
       strokeWeight: 2,
@@ -133,7 +133,7 @@ class App extends Component {
       center: location
     })
 
-    circle.bindTo('center', marker, 'position');
+    circle.bindTo('center', marker, 'position'); // makes the marker binded to circle
   // geocodeLatLng(geocoder, map, infowindow,);
 
     })
@@ -163,13 +163,13 @@ class App extends Component {
 // }
   
     }
-    currentBorough = (event) =>{
+    currentBorough = (event) =>{  // handles buttom click and this is used for getting the selected borough & creating the boundary
       
       let url;
       console.log(coordarr)
       coordarr = [];
   
-      if(poly !== undefined)
+      if(poly !== undefined) // looks at poly and see if its filled with stuff
       {
         console.log(poly)
     
@@ -183,7 +183,7 @@ class App extends Component {
     if((this.state.selectedOption === null))
     {
        url = `https://data.cityofnewyork.us/resource/h9gi-nx95.json`;
-       url2 = `https://data.cityofnewyork.us/resource/7t3b-ywvw.json`;
+  
     }
     else{
        url = `https://data.cityofnewyork.us/resource/h9gi-nx95.json?borough=${this.state.selectedOption.label}`;  
@@ -193,8 +193,7 @@ class App extends Component {
     console.log(typeof(this.state.selectedOption))
     let options = {
       method: 'GET',
-      query: {borough: 'BROOKLYN'},
-      headers: {'X-App-Token': 'xpFnBGBIZmWJ2mf0v43C7muyB'}
+           headers: {'X-App-Token': 'xpFnBGBIZmWJ2mf0v43C7muyB'}
     };
     
     fetch(url, options)
