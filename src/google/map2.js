@@ -1,8 +1,10 @@
 
 import React, { Component } from 'react';
+import motorData from '../components/data/Borough.json'
 import Map from '../components/map/map';
 import Select from 'react-select';
 const API_KEY = 'AIzaSyDz2R7uwwfoFu4KH6qgSofChVgONHPuplE';
+
 
 
 
@@ -15,15 +17,35 @@ let marker;
 let poly;
 let coordarr = [];
 let url2;
-
+let coordarr2 = [];
+let multiCircle;
+let boroug = [];
+let collision = [];
 
 const options = [
   { value: 'Bronx', label: 'BRONX' },
   { value: 'Brooklyn', label: 'BROOKLYN' },
   { value: 'Queens', label: 'QUEENS' },
   { value: 'Manhattan', label: 'MANHATTAN' },
-  { value: 'Staten Island', label: 'STATEN ISLANDp' },
+  { value: 'Staten Island', label: 'STATEN ISLAND' },
 ]
+
+function Con(props)
+
+{
+
+
+  return(
+    <div>
+      <ul className='list-group'>
+        <li className='list-group-item' key={props.keys}>{props.hood} crashes:{props.crashes}</li>
+
+      </ul>
+    </div>
+  );
+
+}
+// console.log(JSON.parse('./src/components/Borough and Neighborhood Crash Counts (2012-07-01 through 2022-03-15).geojson'))
 class App extends Component {
 
     state = {
@@ -31,7 +53,9 @@ class App extends Component {
         lat: 40.75814,
         lng: -73.98626,
         selectedOption : 500,
-        radius : 500,
+        radius : 20,
+        borough : '',
+        boroug: '',
   
       zoom: 15
     }
@@ -46,8 +70,8 @@ class App extends Component {
     
     componentDidMount() {
       this.renderMap();
-      
-   
+   console.log(motorData)
+
 
     }
   
@@ -71,15 +95,7 @@ class App extends Component {
           zoom: 15,
           // styles: mapStyle
       });
-      // Current Location Marker
-     
-       marker = new window.google.maps.Marker({
-          position: location,
-          map: map,
-          title: "You're Here!"
-      });
-     
-      
+      // Current Location Marker     
  
     geocoder = new window.google.maps.Geocoder();
       infowindow = new window.google.maps.InfoWindow({
@@ -107,21 +123,14 @@ class App extends Component {
     infowindow.open(map);
     console.log(circle)
     
-    if(circle !== undefined)
-    {
-      circle.setMap(null)
-
-    }
-    if (marker && marker.setMap) {
-      marker.setMap(null);
-  }
+   
      marker = new window.google.maps.Marker({ // this marker is for cicle radius to move around
       position: location,
       map: map,
       draggable: true,
     });
     
-
+    console.log(location)
      circle = new window.google.maps.Circle({  // creating circle from click event
       strokeColor: '#FF0000',
       strokeOpacity: 0.8,
@@ -164,20 +173,16 @@ class App extends Component {
   
     }
     currentBorough = (event) =>{  // handles buttom click and this is used for getting the selected borough & creating the boundary
-      
+    
       let url;
-      console.log(coordarr)
+      //console.log(coordarr)
       coordarr = [];
   
       if(poly !== undefined) // looks at poly and see if its filled with stuff
       {
-        console.log(poly)
-    
-         poly.setMap(null);
-     
-         poly = null
-    
-        console.log(poly)
+        console.log(poly.map)
+         poly = null;
+            console.log(poly)
       
       }
     if((this.state.selectedOption === null))
@@ -190,7 +195,7 @@ class App extends Component {
        url2 = `https://data.cityofnewyork.us/resource/7t3b-ywvw.json?boro_name=${this.state.selectedOption.value}`;  
     }
     
-    console.log(typeof(this.state.selectedOption))
+    console.log(this.state.selectedOption.label)
     let options = {
       method: 'GET',
            headers: {'X-App-Token': 'xpFnBGBIZmWJ2mf0v43C7muyB'}
@@ -199,11 +204,35 @@ class App extends Component {
     fetch(url, options)
       .then(res => res.json())
       .then(json => {
-        this.setState({borough: json})
-        //console.log(this.state.borough)
-      })
+        
+        for(let x = 0; x < json.length; x++)
+        {
+         // console.log(collision[x].location)
+         
+          var location = {
+            lat: parseFloat(json[x].latitude),
+            lng: parseFloat(json[x].longitude)
+            };
+           // console.log(location);
+          //    console.log(coordarr2[pos])
+              //  let latlng = coordarr2[pos]
+               multiCircle = new window.google.maps.Circle({  // creating circle from click event
+                 strokeColor: '#0000FF',
+                 strokeOpacity: 0.8,
+                 strokeWeight: 2,
+                 fillColor: '#0000FF',
+                 fillOpacity: 0.35,
+                 map: map,
+                 radius : this.state.radius,
+                 center: location
+               });
+        }
+      }
+      )
+     
       .catch(err => console.error('error:' + err));
       console.log(this.state.selectedOption.value)
+      
 
    
   
@@ -214,27 +243,30 @@ class App extends Component {
         .then(json => {
            // console.log(json[0].the_geom.coordinates)
             let coordinates = json[0].the_geom.coordinates
-            console.log(coordinates)
+           // console.log(coordinates)
             for(let i = 0; i < coordinates.length; i++){
              
               for ( let j=0; j<coordinates[i].length; j++ ){
-                console.log(coordinates[i][j])
-                //console.log(coordinates[i][j])
+          //      console.log(coordinates[i][j])
+              //  console.log(coordinates[i][j])
                 coordarr = coordinates[i][j].map( coord => ({ lat: coord[1], lng: coord[0] }) );  
+               
+            //    console.log(poly)
+           
+            //  console.log(coordarr)
            
               }     
             }
+          //   poly = new window.google.maps.Polygon({
+          //     paths: coordarr,
+          //     strokeColor: '#FF0000',
+          //     strokeOpacity: 0.8,
+          //     strokeWeight: 2,
+          //     fillOpacity: 0.15,
+          // });
+          // poly.setMap(map);
             // outside of for loop
-            poly = new window.google.maps.Polygon({
-              paths: coordarr,
-              strokeColor: '#FF0000',
-              strokeOpacity: 0.8,
-              strokeWeight: 2,
-              fillOpacity: 0.35,
-          });
-            console.log(poly)
-          poly.setMap(map);
-           console.log(coordarr)
+           
            
       
        
@@ -242,7 +274,108 @@ class App extends Component {
         )
       
         .catch(err => console.error('error:' + err));
+  //       if(multiCircle !== undefined)
+  //   {
+  //     multiCircle.setMap(null)
+
+  //   }
+  //   if (marker && marker.setMap) {
+   
+  //     marker.setMap(null);
+  // }
+  boroug = [];
+          for(let j = 0; j < motorData.features.length; j++)
+      {
+       // console.log(motorData.features[j].properties.BoroName)
+        if(motorData.features[j].properties.BoroName === this.state.selectedOption.value){
+        //  console.log(motorData.features[j].properties.BoroName,[j])
+        boroug.push(motorData.features[j]);
+          let geom = motorData.features[j].geometry.coordinates
+         // let geom2 = motorData.features
+        
+          
+          for(let i = 0; i < geom.length; i++){
+        
+           coordarr2 = geom[i].map( coord =>  ({ lat: coord[1], lng: coord[0] }) ); 
+            
+
+              
+            
+         //    console.log(poly)
+       //   console.log(coordarr2)
+          
+           for(const pos in coordarr2)
+           {
+        //    console.log(coordarr2[pos])
+            //  let latlng = coordarr2[pos]
+            //  multiCircle = new window.google.maps.Circle({  // creating circle from click event
+            //    strokeColor: '#0000FF',
+            //    strokeOpacity: 0.8,
+            //    strokeWeight: 2,
+            //    fillColor: '#0000FF',
+            //    fillOpacity: 0.35,
+            //    map: map,
+            //    radius : this.state.radius,
+            //    center: latlng
+            //  });
+            //  marker = new window.google.maps.Marker({ // this marker is for cicle radius to move around
+            //   position: latlng,
+            //   map: map,
+  
+            // });
+            // multiCircle.bindTo('center', marker, 'position'); // makes the marker binded to circle
+            
+          
+           }
+        
+           
+         }
      
+         poly = new window.google.maps.Polygon({
+          paths: coordarr2,
+          strokeColor: '#FF0000',
+          strokeOpacity: 0.8,
+          strokeWeight: 2,
+          fillOpacity: 0.15,
+      });
+      poly.setMap(map);
+        }
+        else{
+          console.log('fail')
+        }
+      }
+      this.setState({boroug:boroug})
+      console.log(this.state.boroug)
+
+      for(let i = 0; i < boroug.length; i++)
+      {
+        let v = boroug[i].geometry.coordinates
+        //console.log(v)
+
+        for(let x = 0; x< v.length; x++)
+        {
+       
+      //     if(boroug[i].geometry.type === 'MultiPolygon')
+      //     {
+      //  //     console.log(v[x])
+      //      let coordarr3 = v[x].map( coord =>  ({ lat: coord[1], lng: coord[0] }) ); 
+      //     // console.log(coordarr3)
+      //     }
+      //     else{
+      //       let arr = v[x];
+      //       for(let i = 0; i<arr.length; i++)
+      //       {
+      //   //      console.log(arr[i])
+      //       }
+      //     }
+          
+        }
+        
+     
+     
+        
+      }
+
     }
     render() {
       const { selectedOption } = this.state;
@@ -256,6 +389,7 @@ class App extends Component {
           />
            <button className="btn btn-primary" onClick={this.currentBorough}>Enter city</button>
           <Map />
+          <div className='col-sm'> {boroug.map((content,i) => <Con crashes={content.properties.Crashes}  hood = {content.properties.NTAName} keys={content.keygit add}/> )}</div>  
         </div>
       );
     }
