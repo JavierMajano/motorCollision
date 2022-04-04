@@ -1,5 +1,5 @@
-import Map from "./components/Map";
-import Filter from "./components/Filter";
+import Map from "./components/Map/Map.js";
+import Filter from "./components/Filter/Filter.js";
 
 import "./App.css";
 
