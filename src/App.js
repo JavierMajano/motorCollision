@@ -1,18 +1,15 @@
+import Map from "./components/Map";
+import Filter from "./components/Filter";
 
-import './App.css';
-import Motor from './components/motor';
-import MAP from './google/map2'
+import "./App.css";
+
 function App() {
   return (
     <div className="App">
-       
-        <div>
-          {/* <Motor /> */}
-          <MAP />
-        </div>
-        
-          
-   
+      <div>
+        <Map />
+        <Filter />
+      </div>
     </div>
   );
 }
