@@ -1,16 +1,17 @@
 import Map from "./components/Map/Map.js";
 import Filter from "./components/Filter/Filter.js";
+import { Container, Row } from "react-bootstrap";
 
 import "./App.css";
 
 function App() {
   return (
-    <div className="App">
-      <div>
-        <Map />
+    <Container className="mt-5">
+      <div id="hero">
         <Filter />
+        <Map />
       </div>
-    </div>
+    </Container>
   );
 }
 
